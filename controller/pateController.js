@@ -20,7 +20,7 @@ exports.addLink = async (req, res) => {
     const paste = new Paste({ userId, text, status, uniqueId, expiresAt })
 
     await paste.save()
-    return res.status(200).json({ url: `localhost:5000/user/pastebin/${uniqueId}` })
+    return res.status(200).json({ url: `https://pastebinn.onrender.com/user/pastebin/${uniqueId}` })
 }
 
 
