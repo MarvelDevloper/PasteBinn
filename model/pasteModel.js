@@ -20,8 +20,7 @@ const pasteSchema=mongoose.Schema({
     },
     expiresAt:{
         type:Date,
-        expires:0,
-        required:true
+        expires:0
     }
 },{
     timestamps:true

@@ -4,7 +4,7 @@ const OTP = require('../model/otpModel')
 
 exports.sendOtp = async (req, res) => {
     try {
-        const email=req.email
+        const email = req.email
 
         if (!email) {
             return res.status(400).json({ msg: 'email required!' })
@@ -29,29 +29,29 @@ exports.sendOtp = async (req, res) => {
     }
 }
 
-exports.verifyOtp=async(req,res)=>{
+exports.verifyOtp = async (req, res) => {
     try {
-        const {otp} =req.body
-        const email=req.email
+        const { otp } = req.body
+        const email = req.email
 
-        if(!otp || !email){
-            return res.status(400).json({msg:'all fields required!'})
+        if (!otp || !email) {
+            return res.status(400).json({ msg: 'all fields required!' })
         }
 
-        const getOtp= await OTP.findOne({email:email})
+        const getOtp = await OTP.findOne({ email: email })
 
-        if(!getOtp){
-            return res.status(404).json({msg:'otp Expires pls try again!'})
+        if (!getOtp) {
+            return res.status(404).json({ msg: 'otp Expires pls try again!' })
         }
 
-        const isValid=getOtp.otp===otp
+        const isValid = getOtp.otp === otp
 
-        if(!isValid){
-            return res.status(401).json({msg:'otp is not valid'})
+        if (!isValid) {
+            return res.status(401).json({ msg: 'otp is not valid' })
         }
 
-        await OTP.findOneAndDelete({email:email})
-        return res.status(200).json({msg:'otp verified'})
+        await OTP.findOneAndDelete({ email: email })
+        return res.status(200).json({ msg: 'otp verified' })
     } catch (error) {
         console.log(error)
     }

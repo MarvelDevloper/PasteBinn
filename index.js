@@ -6,11 +6,14 @@ require('dotenv').config()
 const apiratelimit=require('./middleware/apiRatelimit')
 const userRoute = require('./route/userRoute')
 const pasteRoute = require('./route/pasteRoute')
+const cors=require('cors')
 const otpRoute = require('./route/otpRoutes')
+const corsConfig=require('./config/configCors')
 // DB connection 
 DBconnection()
 
 
+app.use(corsConfig)
 app.use(express.json())
 app.use(express.urlencoded({extended:true}))
 app.use(apiratelimit(15*60*1000,100))

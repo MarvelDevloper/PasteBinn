@@ -31,7 +31,7 @@ exports.getLink = asyncHandler(async (req, res) => {
         throw new ApiError('No Text Found or maybe text Expires', 404)
     }
 
-    const existPaste = await Paste.findOne({ uniqueId: uniqueId })
+    const existPaste = await Paste.findOne({ uniqueId: uniqueId }).populate('userId')
 
     if (!existPaste) {
         throw new ApiError('No Text Found or maybe text Expires', 404)
@@ -48,7 +48,7 @@ exports.getLink = asyncHandler(async (req, res) => {
 
 exports.getallLinks = asyncHandler(async (req, res) => {
 
-    const existPaste = await Paste.find({})
+    const existPaste = await Paste.find({}).populate('userId')
 
     if (!existPaste) {
         throw new ApiError('No Text Found or maybe text Expires', 404)
@@ -65,7 +65,7 @@ exports.getallLinks = asyncHandler(async (req, res) => {
     exports.getUserPaste = asyncHandler(async (req, res) => {
         const userId = req.userid
 
-        const allPastes = await Paste.find({ userId: userId })
+        const allPastes = await Paste.find({ userId: userId }).populate('userId')
 
 
         return res.status(200).json({ paste: allPastes })
