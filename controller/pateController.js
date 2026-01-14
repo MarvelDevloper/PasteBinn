@@ -7,15 +7,14 @@ exports.addLink = async (req, res) => {
     const { text, status, expiration } = req.body
     const userId = req.userid
     const uniqueId = generateUniqueUrl()
-    console.log(uniqueId)
 
     if (!text || !status) {
         throw new ApiError('all fields required')
     }
 
     // expiration in minutes from the request
-    const expirationMinutes = parseInt(expiration) || 10; // default 10 minutes
-    const expiresAt = new Date(Date.now() + expirationMinutes * 60 * 1000);
+    const expirationMinutes = parseInt(expiration) || 1; // default 10 day
+    const expiresAt = new Date(Date.now() + expirationMinutes * 24 * 60 * 60 * 1000);
 
     const paste = new Paste({ userId, text, status, uniqueId, expiresAt })
 
@@ -56,7 +55,6 @@ exports.getallLinks = asyncHandler(async (req, res) => {
     }
 
     const publicPaste = existPaste.filter((paste) => {
-        console.log(paste.status)
         return paste.status === 'public'
     })
 
@@ -66,18 +64,17 @@ exports.getallLinks = asyncHandler(async (req, res) => {
 
     exports.getUserPaste = asyncHandler(async (req, res) => {
         const userId = req.userid
-        console.log(userId)
 
         const allPastes = await Paste.find({ userId: userId })
 
 
         return res.status(200).json({ paste: allPastes })
-})
+    })
 
 
 exports.deletePaste = asyncHandler(async (req, res) => {
-    const userId=req.userid
-    
+    const userId = req.userid
+
     const pasteId = req.params.pasteId
 
     if (!pasteId) {
@@ -85,28 +82,28 @@ exports.deletePaste = asyncHandler(async (req, res) => {
     }
 
     const existPaste = await Paste.findById(pasteId)
-    
-    if(!existPaste){
+
+    if (!existPaste) {
         throw new ApiError('paste not found!')
     }
 
-    const isValid=(existPaste.userId.toString()==userId)
+    const isValid = (existPaste.userId.toString() == userId)
 
-    if(!isValid){
-        throw new ApiError('not allowed to delete the paste',401)
+    if (!isValid) {
+        throw new ApiError('not allowed to delete the paste', 401)
     }
     const deletePastes = await Paste.findByIdAndDelete(pasteId)
 
-    if(!deletePastes){
-        throw new ApiError('failed to delete the paste',400)
+    if (!deletePastes) {
+        throw new ApiError('failed to delete the paste', 400)
     }
-    return res.status(200).json({ paste: 'paste deleted successfully!'})
+    return res.status(200).json({ paste: 'paste deleted successfully!' })
 })
 
 
 exports.updatePaste = asyncHandler(async (req, res) => {
-    const userId=req.userid
-    
+    const userId = req.userid
+
     const pasteId = req.params.pasteId
 
     if (!pasteId) {
@@ -114,23 +111,23 @@ exports.updatePaste = asyncHandler(async (req, res) => {
     }
 
     const existPaste = await Paste.findById(pasteId)
-    
-    if(!existPaste){
+
+    if (!existPaste) {
         throw new ApiError('paste not found!')
     }
 
-    const isValid=(existPaste.userId.toString()==userId)
+    const isValid = (existPaste.userId.toString() == userId)
 
-    if(!isValid){
-        throw new ApiError('not allowed to update the paste',401)
+    if (!isValid) {
+        throw new ApiError('not allowed to update the paste', 401)
     }
 
-    const updatePastes = await Paste.findByIdAndUpdate(pasteId,req.body,{new:true})
+    const updatePastes = await Paste.findByIdAndUpdate(pasteId, req.body, { new: true })
 
-    if(!updatePastes){
-        throw new ApiError('failed to update the paste',400)
+    if (!updatePastes) {
+        throw new ApiError('failed to update the paste', 400)
     }
-    return res.status(200).json({ paste: 'paste update successfully!'})
+    return res.status(200).json({ paste: 'paste update successfully!' })
 })
 
 
