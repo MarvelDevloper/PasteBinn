@@ -3,10 +3,11 @@ const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
 const User = require("../model/userModel")
 const sendEmail = require("../nodemailer/sendMail")
+const { accessToken, refreshToken } = require("../Auth/generateToken")
 
 const userController = {
     signup: asyncHandler(async (req, res) => {
-        const { email, name, password, nickname,role } = req.body
+        const { email, name, password, nickname, role } = req.body
 
         if (!email || !name || !password || !nickname) {
             throw new ApiError('all fields required', 400)
@@ -18,10 +19,10 @@ const userController = {
         }
         const hashPassword = await bcrypt.hash(password, 10)
         const user = new User({
-            name, email, password: hashPassword, nickname,role:role || 'user'
+            name, email, password: hashPassword, nickname, role: role || 'user'
         })
 
-        await sendEmail(email,'Signup successful. Thanks for choosing us. Have a great day!','Signup successfully done',process.env.APPINFO)
+        await sendEmail(email, 'Signup successful. Thanks for choosing us. Have a great day!', 'Signup successfully done', process.env.APPINFO)
 
         await user.save()
         return res.status(201).json({ msg: 'account created successfully!' })
@@ -43,8 +44,17 @@ const userController = {
         if (!isValid) {
             throw new ApiError('invalid password or email', 400)
         }
-        const token = jwt.sign({ id: existUser._id, email: existUser.email, role: existUser.role }, process.env.SECRET_KEY, { expiresIn: '1d' })
-        return res.status(200).json({ msg: 'login successful!', token: token })
+        
+        const accesstoken=accessToken({id:existUser._id,email:existUser.email,role:existUser.role})
+        const refreshtoken=refreshToken({id:existUser._id,email:existUser.email,role:existUser.role})
+
+        res.cookie("refreshtoken", refreshtoken, {
+            httpOnly: true,
+            secure: false,
+            sameSite: "None",
+            maxAge: 7 * 24 * 60 * 60 * 1000
+        })
+        return res.status(200).json({ msg: 'login successful!', token: accesstoken ,refreshtoken})
     }),
     profile: asyncHandler(async (req, res) => {
         const userId = req.userid
@@ -64,7 +74,7 @@ const userController = {
     changePassword: asyncHandler(async (req, res) => {
         const { oldpassword, newpassword } = req.body
 
-        const userId=req.userid
+        const userId = req.userid
         if (!oldpassword || !newpassword) {
             throw new ApiError('all fields error', 400)
         }
@@ -84,7 +94,7 @@ const userController = {
         existUser.password = newHashPassword
         existUser.save()
         return res.status(200).json({ msg: 'password save' })
-    })
+    }),
 }
 
 module.exports = userController
