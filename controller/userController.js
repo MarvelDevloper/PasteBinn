@@ -22,9 +22,20 @@ const userController = {
             name, email, password: hashPassword, nickname, role: role || 'user'
         })
 
-        await sendEmail(email, 'Signup successful. Thanks for choosing us. Have a great day!', 'Signup successfully done', process.env.APPINFO)
-
         await user.save()
+
+
+        try {
+            await sendEmail(
+                email,
+                'Signup successful. Thanks for choosing us. Have a great day!',
+                'Signup successfully done',
+                process.env.APPINFO
+            );
+        } catch (err) {
+            console.log("Email send failed:", err.message);
+        }
+
         return res.status(201).json({ msg: 'account created successfully!' })
     }),
     login: asyncHandler(async (req, res) => {
@@ -44,9 +55,9 @@ const userController = {
         if (!isValid) {
             throw new ApiError('invalid password or email', 400)
         }
-        
-        const accesstoken=accessToken({id:existUser._id,email:existUser.email,role:existUser.role})
-        const refreshtoken=refreshToken({id:existUser._id,email:existUser.email,role:existUser.role})
+
+        const accesstoken = accessToken({ id: existUser._id, email: existUser.email, role: existUser.role })
+        const refreshtoken = refreshToken({ id: existUser._id, email: existUser.email, role: existUser.role })
 
         res.cookie("refreshtoken", refreshtoken, {
             httpOnly: true,
@@ -54,7 +65,7 @@ const userController = {
             sameSite: "None",
             maxAge: 7 * 24 * 60 * 60 * 1000
         })
-        return res.status(200).json({ msg: 'login successful!', token: accesstoken ,refreshtoken})
+        return res.status(200).json({ msg: 'login successful!', token: accesstoken, refreshtoken })
     }),
     profile: asyncHandler(async (req, res) => {
         const userId = req.userid
