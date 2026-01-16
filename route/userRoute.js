@@ -8,4 +8,5 @@ userRoute.post('/login', userController.login)
 userRoute.get('/profile', verifyAccessToken, userController.profile)
 userRoute.post('/change-password', verifyAccessToken, userController.changePassword)
 userRoute.get('/refresh-token',verifyRefreshToken)
+userRoute.get('/access-token',verifyAccessToken)
 module.exports = userRoute
