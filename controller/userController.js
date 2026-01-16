@@ -49,7 +49,7 @@ const userController = {
         /* ACCESS TOKEN COOKIE */
         res.cookie("accessToken", accesstoken, {
             httpOnly: true,
-            secure: true,      
+            secure: false,      
             sameSite: "None",
             maxAge: 15 * 60 * 1000, // 15 min
         });
@@ -57,7 +57,7 @@ const userController = {
         /* REFRESH TOKEN COOKIE */
         res.cookie("refreshToken", refreshtoken, {
             httpOnly: true,
-            secure: true,
+            secure: false,
             sameSite: "None",
             maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
         });
