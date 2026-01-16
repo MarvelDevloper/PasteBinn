@@ -6,7 +6,6 @@ require('dotenv').config()
 const apiratelimit=require('./middleware/apiRatelimit')
 const userRoute = require('./route/userRoute')
 const pasteRoute = require('./route/pasteRoute')
-const cors=require('cors')
 const otpRoute = require('./route/otpRoutes')
 const corsConfig=require('./config/configCors')
 // DB connection 
