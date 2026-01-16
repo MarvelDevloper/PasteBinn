@@ -6,7 +6,16 @@ const verifyToken = {
 
     verifyAccessToken: (req, res, next) => {
         try {
-            const token = req.headers.authorization.split(' ')[1]  || req.cookies.accessToken; 
+
+            let token;
+
+            // first try Authorization header
+            if (req.headers.authorization && req.headers.authorization.startsWith("Bearer ")) {
+                token = req.headers.authorization.split(" ")[1];
+            } else if (req.cookies?.accessToken) {
+                // fallback to cookie
+                token = req.cookies.accessToken;
+            }
 
             if (!token) {
                 return res.status(400).json({ msg: 'token not found!' })
