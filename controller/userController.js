@@ -50,7 +50,7 @@ const userController = {
         res.cookie("accessToken", accesstoken, {
             httpOnly: true,
             secure: false,      
-            sameSite: "None",
+            sameSite: "Lax",
             maxAge: 15 * 60 * 1000, // 15 min
         });
 
@@ -58,7 +58,7 @@ const userController = {
         res.cookie("refreshToken", refreshtoken, {
             httpOnly: true,
             secure: false,
-            sameSite: "None",
+            sameSite: "Lax",
             maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
         });
         return res.status(200).json({ msg: 'login successful!',user:existUser})
