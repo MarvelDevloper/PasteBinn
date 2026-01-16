@@ -2,7 +2,6 @@ const { asyncHandler, ApiError } = require("../middleware/ErrorHander")
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
 const User = require("../model/userModel")
-const sendEmail = require("../nodemailer/sendMail")
 const { accessToken, refreshToken } = require("../Auth/generateToken")
 
 const userController = {
@@ -23,18 +22,6 @@ const userController = {
         })
 
         await user.save()
-
-
-        try {
-            await sendEmail(
-                email,
-                'Signup successful. Thanks for choosing us. Have a great day!',
-                'Signup successfully done',
-                process.env.APPINFO
-            );
-        } catch (err) {
-            console.log("Email send failed:", err.message);
-        }
 
         return res.status(201).json({ msg: 'account created successfully!' })
     }),
@@ -59,13 +46,22 @@ const userController = {
         const accesstoken = accessToken({ id: existUser._id, email: existUser.email, role: existUser.role })
         const refreshtoken = refreshToken({ id: existUser._id, email: existUser.email, role: existUser.role })
 
-        res.cookie("refreshtoken", refreshtoken, {
+        /* ACCESS TOKEN COOKIE */
+        res.cookie("accessToken", accesstoken, {
             httpOnly: true,
-            secure: false,
+            secure: true,      
             sameSite: "None",
-            maxAge: 7 * 24 * 60 * 60 * 1000
-        })
-        return res.status(200).json({ msg: 'login successful!', token: accesstoken, refreshtoken })
+            maxAge: 15 * 60 * 1000, // 15 min
+        });
+
+        /* REFRESH TOKEN COOKIE */
+        res.cookie("refreshToken", refreshtoken, {
+            httpOnly: true,
+            secure: true,
+            sameSite: "None",
+            maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+        });
+        return res.status(200).json({ msg: 'login successful!',user:existUser})
     }),
     profile: asyncHandler(async (req, res) => {
         const userId = req.userid
